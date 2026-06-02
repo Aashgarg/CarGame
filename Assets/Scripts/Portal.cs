@@ -5,10 +5,14 @@ public class Portal : MonoBehaviour
 {
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform destinationTransform;
+    [SerializeField] private Portal destinationPortal;
     [SerializeField] private bool keepVelocity;
     [SerializeField] private ParticleSystem entryTeleportEffect;
     [SerializeField] private ParticleSystem exitTeleportEffect;
 
+    [SerializeField] private float teleportDelay = 0.1f; // if teleported wait for this time before using the destination portal to teleport again
+
+    private bool canTeleport = true;
     private Rigidbody2D playerRigidbody;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -26,7 +30,10 @@ public class Portal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            TeleportPlayer();
+            if (canTeleport)
+            {
+                TeleportPlayer();
+            }
         }
     }
 
@@ -59,5 +66,24 @@ public class Portal : MonoBehaviour
         {
             exitTeleportEffect.Play();
         }
+        canTeleport = false;
+
+        // prevent the destination portal from immediately sending the player back
+        if (destinationPortal != null)
+        {
+            destinationPortal.canTeleport = false;
+            destinationPortal.StartCoroutine(destinationPortal.ResetTeleport());
+        }
+
+        // nudge the player slightly forward from the destination so they don't remain inside the trigger
+        playerTransform.position = playerTransform.position + (Vector3)(destinationTransform.up * 0.5f);
+
+        StartCoroutine(ResetTeleport());
+    }
+    
+    public IEnumerator ResetTeleport()
+    {
+        yield return new WaitForSeconds(teleportDelay);
+        canTeleport = true;
     }
 }
