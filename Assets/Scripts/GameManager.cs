@@ -8,6 +8,7 @@ public enum GameState
 }
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private PortalPlacementHandler portalPlacementHandler;
     public GameState currentState;
     private bool isPaused;
     private float transitionDelay = 1f; // Time to wait before transitioning to the next state
