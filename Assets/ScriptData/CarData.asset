@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarData
   maxSpeed: 30
   accelerationFactor: 30
-  turningFactor: 5
+  turningFactor: 3
   driftFactor: 0.3
   dragFactor: 1
   brakeFactor: 30

@@ -12,13 +12,14 @@ public class DeliveryManager : MonoBehaviour
 {
     [SerializeField] private DeliveryData[] deliveries;
     [SerializeField] private TMPro.TextMeshProUGUI timeText;
-    //private float currentTime;
+    private float currentTime;
     public DeliveryData currentDelivery;
     public DeliveryStatus currentStatus;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentStatus = DeliveryStatus.Inactive;
+        currentTime = deliveries[0].timeLimit;
         //temp to test delivery system
         AcceptDelivery(deliveries[0]);
         
@@ -31,10 +32,10 @@ public class DeliveryManager : MonoBehaviour
         {
             // Update the time text
             timeText.gameObject.SetActive(true);
-            timeText.text = "Time: " + Mathf.Max(0, currentDelivery.timeLimit).ToString("F1");
+            timeText.text = "Time: " + Mathf.Max(0, currentTime).ToString("F1");
             // Decrease the time limit
-            currentDelivery.timeLimit -= Time.deltaTime;
-            if (currentDelivery.timeLimit <= 0)
+            currentTime -= Time.deltaTime;
+            if (currentTime <= 0)
             {
                 FailDelivery();
             }
@@ -88,6 +89,7 @@ public class DeliveryManager : MonoBehaviour
         {
             currentStatus = DeliveryStatus.Inactive;
             Debug.Log("Failed delivery: " + currentDelivery.deliveryName);
+            currentTime = currentDelivery.timeLimit;
             // Additional logic to handle delivery failure, such as penalizing the player or updating UI
         }
     }

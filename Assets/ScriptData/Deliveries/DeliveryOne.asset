@@ -16,6 +16,6 @@ MonoBehaviour:
   deliveryName: Plushie
   destination: {x: 0.5, y: 40}
   pickupLocation: {x: 0.5, y: 0.2}
-  timeLimit: 30
+  timeLimit: 10
   rewardMoney: 5
   cargoHealth: 5
