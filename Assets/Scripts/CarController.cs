@@ -98,4 +98,16 @@ public class CarController : MonoBehaviour
 
         carRigidbody.linearVelocity = forwardVelocity + rightVelocity * carData.driftFactor;
     }
+
+    public void freezeInPlace()
+    {
+        carRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+    }
+
+    public void unfreeze()
+    {
+        carRigidbody.constraints = RigidbodyConstraints2D.None;
+    }
+
+    
 }

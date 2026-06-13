@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using TMPro; // for TextMeshProUGUI
 
 public class Portal : MonoBehaviour
 {
+    [SerializeField] private PortalPair portalPair; // reference to the ScriptableObject that holds the paired portal info
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform destinationTransform;
     [SerializeField] private Portal destinationPortal;
@@ -11,7 +13,12 @@ public class Portal : MonoBehaviour
     [SerializeField] private ParticleSystem exitTeleportEffect;
 
     [SerializeField] private float teleportDelay = 0.1f; // if teleported wait for this time before using the destination portal to teleport again
+    [SerializeField] private TextMeshProUGUI distanceText; // text that shows the distance between start and end portals when dragging
 
+    private bool isStartPortal; // whether this portal is the start or end of the pair
+    private bool isPlaced; // whether this portal has been placed in the scene
+    private bool isDragging; // whether the player is currently dragging this portal to place it
+    private LineRenderer distanceLine; // line that shows the distance between start and end portals when dragging
     private bool canTeleport = true;
     private Rigidbody2D playerRigidbody;
     // Start is called once before the first execution of Update after the MonoBehaviour is created

@@ -1,44 +1,53 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum GameState
 {
     planningStage, // Player places portals down to plan their route
     drivingStage, // Player is driving to complete the delivery
-    deliveryComplete, // Player successfully completes the delivery
 }
+// The class manages transitions between planning and driving stages of the game
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private PortalPlacementHandler portalPlacementHandler;
-    public GameState currentState;
-    private bool isPaused;
-    private float transitionDelay = 1f; // Time to wait before transitioning to the next state
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public static GameManager instance;
+    public GameState currentGameState;
+    public UnityEvent onEnterPlanningStage;
+    public UnityEvent onEnterDrivingStage;
+    [SerializeField] private Vector2 playerStartPosition;
+    [SerializeField] private Vector2 playerStartRotation;
+    [SerializeField] private Camera planningCamera;
+    [SerializeField] private Camera drivingCamera;
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
-        
+        EnterPlanningStage();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void EnterPlanningStage()
     {
-        
+        currentGameState = GameState.planningStage;
+        planningCamera.gameObject.SetActive(true);
+        drivingCamera.gameObject.SetActive(false);
+        onEnterPlanningStage.Invoke();
     }
-
-    void StartPlanningStage()
+    public void EnterDrivingStage()
     {
-        currentState = GameState.planningStage;
-        // Enable portal placement, disable player control
-    }
-
-    void StartDrivingStage()
-    {
-        currentState = GameState.drivingStage;
-        // Disable portal placement, enable player control
-    }
-
-    void PauseGame()
-    {
-        isPaused = true;
-        Time.timeScale = 0f; // Pause the game
+        currentGameState = GameState.drivingStage;
+        planningCamera.gameObject.SetActive(false);
+        drivingCamera.gameObject.SetActive(true);
+        onEnterDrivingStage.Invoke();
     }
 }
