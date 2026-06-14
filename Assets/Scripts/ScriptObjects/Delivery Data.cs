@@ -13,7 +13,7 @@ public class DeliveryData : ScriptableObject
     public string deliveryName;
     public Vector2 destination;
     public Vector2 pickupLocation;
-    public float timeLimit; // Time limit in seconds
+    public float timeLimit;
     public float rewardMoney;
     public float cargoHealth;
 }
