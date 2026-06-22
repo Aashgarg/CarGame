@@ -108,6 +108,27 @@ public class CarController : MonoBehaviour
     {
         carRigidbody.constraints = RigidbodyConstraints2D.None;
     }
+    float GetLateralVelocity()
+    {
+        return Vector2.Dot(transform.right, carRigidbody.linearVelocity);
+    }
 
-    
+    public bool IsTireScreeching(out float lateralVelocity, out bool isBraking)
+    {
+        lateralVelocity = GetLateralVelocity();
+        isBraking = false;
+        //Check if we are moving forward and if the player is hitting the brakes. In that case the tires should screech.
+        if (accelerationInput < 0 && velocityVsUp > 0)
+        {
+            isBraking = true;
+            return true;
+        }
+        //If we have a lot of side movement then the tires should be screeching 
+        if (Mathf.Abs(GetLateralVelocity()) > 4.0f)
+        {
+            return true;
+        }
+        return false;
+
+    }
 }
