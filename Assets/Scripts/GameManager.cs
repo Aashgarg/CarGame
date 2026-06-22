@@ -42,15 +42,15 @@ public class GameManager : MonoBehaviour
     public void EnterSpinningStage()
     {
         currentGameState = GameState.wheelSpin;
-        spinningCamera.gameObject.SetActive(true);
-        drivingCamera.gameObject.SetActive(false);
+        //spinningCamera.gameObject.SetActive(true);
+        //drivingCamera.gameObject.SetActive(false);
         onEnterSpinningStage.Invoke();
     }
     public void EnterDrivingStage()
     {
         currentGameState = GameState.delivery;
-        spinningCamera.gameObject.SetActive(false);
-        drivingCamera.gameObject.SetActive(true);
+        //spinningCamera.gameObject.SetActive(false);
+        //drivingCamera.gameObject.SetActive(true);
         onEnterDrivingStage.Invoke();
     }
 }
