@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: DeliveryOne
   m_EditorClassIdentifier: Assembly-CSharp::DeliveryData
   deliveryID: 0
-  deliveryName: Plushie
+  deliveryName: Person 1
   destination: {x: 0.5, y: 40}
   pickupLocation: {x: 0.5, y: 0.2}
-  timeLimit: 15
+  timeLimit: 30
   rewardMoney: 5
   cargoHealth: 5
