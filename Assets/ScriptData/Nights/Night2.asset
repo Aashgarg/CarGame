@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cee558d0bc3374dc3bf605b1d1aafceb, type: 3}
   m_Name: Night2
   m_EditorClassIdentifier: Assembly-CSharp::NightData
-  nightNumber: 1
+  nightNumber: 2
   deliveryDatas:
   - {fileID: 11400000, guid: 1168dc4b33e6047f39825618af0779c4, type: 2}
   - {fileID: 11400000, guid: 05daeeb0bcfc14fa2a637b409d18cdef, type: 2}
