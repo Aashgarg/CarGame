@@ -9,9 +9,10 @@ public enum ZoneType
 public class DeliveryZone : MonoBehaviour
 {
     public ZoneType zoneType;
-    public DeliveryData deliveryData;
+    private DeliveryData deliveryData;
     public bool isActive;
     [SerializeField] private DeliveryManager deliveryManager;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -66,12 +67,14 @@ public class DeliveryZone : MonoBehaviour
             {
                 if (zoneType == ZoneType.Pickup)
                 {
+                    //wait 2 seconds to make sure that the player has stopped on the location
                     // alerts delivery manager to StartDelivery()
                     deliveryManager.StartDelivery(deliveryData);
                 }
                 else if (zoneType == ZoneType.Dropoff)
                 {
-                    // Logic for dropping off the delivery, such as updating the delivery status, rewarding the player, or updating UI
+                    //wait 2 seconds to make sure that the player has stopped on the location
+                    // alerts delivery manager to StartDelivery()
                     deliveryManager.CompleteDelivery();
                 }
             }

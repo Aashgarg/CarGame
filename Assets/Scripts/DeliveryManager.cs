@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
+using UnityEngine.Events;
 
 public enum DeliveryStatus
 {
@@ -10,18 +12,29 @@ public enum DeliveryStatus
 }
 public class DeliveryManager : MonoBehaviour
 {
-    [SerializeField] private DeliveryData[] deliveries;
+    //[SerializeField] private NightData[] nights;
+    [SerializeField] private GameManager gm;
     [SerializeField] private TMPro.TextMeshProUGUI timeText;
+
+    public GameObject[] PickupZones;
+    public GameObject[] DropoffZones;
     private float currentTime;
     public DeliveryData currentDelivery;
     public DeliveryStatus currentStatus;
+    //public UnityEvent nightFinished;
+
+    private int deliveryNum;
+    private NightData currentNight;
+    private GameObject pick;
+    private GameObject drop;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentStatus = DeliveryStatus.Inactive;
-        currentTime = deliveries[0].timeLimit;
         //temp to test delivery system
-        AcceptDelivery(deliveries[0]);
+        setUpNightDelivery();
+        currentTime = currentDelivery.timeLimit;
+        
         
     }
 
@@ -54,6 +67,14 @@ public class DeliveryManager : MonoBehaviour
         }
     }
 
+    void setUpNightDelivery()
+    {
+        currentNight = gm.currentNight;
+        deliveryNum = 0;
+        currentDelivery = currentNight.deliveryDatas[deliveryNum];
+        AcceptDelivery(currentDelivery);
+    }
+
     public void AcceptDelivery(DeliveryData delivery)
     {
         if (currentStatus == DeliveryStatus.Inactive)
@@ -62,6 +83,10 @@ public class DeliveryManager : MonoBehaviour
             currentStatus = DeliveryStatus.Accepted;
             Debug.Log("Accepted delivery: " + currentDelivery.deliveryName);
             // Additional logic to accept the delivery, such as updating UI or setting timers
+            pick = PickupZones[deliveryNum];
+            pick.SetActive(true);
+            drop = DropoffZones[deliveryNum];
+            drop.SetActive(true);
         }
     }
 
@@ -80,6 +105,26 @@ public class DeliveryManager : MonoBehaviour
             currentStatus = DeliveryStatus.Completed;
             Debug.Log("Completed delivery: " + currentDelivery.deliveryName);
             // Additional logic to complete the delivery, such as rewarding the player or updating UI
+            // Wait 5 seconds and accept next delivery in delivery list
+            pick.SetActive(false);
+            drop.SetActive(false);
+            deliveryNum += 1;
+            Debug.Log(deliveryNum);
+            if (deliveryNum < currentNight.deliveryDatas.Count)
+            {
+                //Debug.Log("hi");
+                currentDelivery = currentNight.deliveryDatas[deliveryNum];
+                Debug.Log("Next: " + currentDelivery.deliveryName);
+                currentStatus = DeliveryStatus.Inactive;
+                AcceptDelivery(currentDelivery);
+            }
+            else
+            {
+                gm.SwitchNight();
+                setUpNightDelivery();
+                
+            }
+            
         }
     }
 
