@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] NightData[] nights;
     public NightData currentNight;
     private int nightIndex = 0;
-
+    public bool endOfGame = false;
     void Awake()
     {
         if (instance == null)
@@ -40,8 +40,19 @@ public class GameManager : MonoBehaviour
     public void SwitchNight()
     {
         nightIndex += 1;
-        currentNight = nights[nightIndex];
-        //Show UI elements transitions to next night
+        if (nightIndex + 1 >= nights.Length)
+        {
+            // its not printing the debug log for some reason
+            Debug.Log("All nights completed!");
+            // Handle end of game logic here
+            endOfGame = true;
+            return;
+        }
+        else
+        {
+            currentNight = nights[nightIndex];
+            //Show UI elements transitions to next night
+        }
         
     }
 }

@@ -72,6 +72,7 @@ public class DeliveryManager : MonoBehaviour
         currentNight = gm.currentNight;
         deliveryNum = 0;
         currentDelivery = currentNight.deliveryDatas[deliveryNum];
+        Debug.Log("Current Night: " + currentNight.nightNumber);
         AcceptDelivery(currentDelivery);
     }
 
@@ -120,9 +121,12 @@ public class DeliveryManager : MonoBehaviour
             }
             else
             {
-                gm.SwitchNight();
-                setUpNightDelivery();
-                
+                if (!gm.endOfGame)
+                {
+                    gm.SwitchNight();
+                    currentStatus = DeliveryStatus.Inactive;
+                    setUpNightDelivery();
+                }
             }
             
         }
