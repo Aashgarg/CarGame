@@ -36,7 +36,7 @@ public class Gun : MonoBehaviour
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
-                rb.linearVelocity = firePoint.right * gunData.bulletSpeed;
+                rb.linearVelocity = firePoint.up * gunData.bulletSpeed;
             }
             else
             {
