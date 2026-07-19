@@ -8,8 +8,8 @@ public class ObjectPooler : MonoBehaviour
     [SerializeField] private int poolSize = 10;
 
     private List<GameObject> objectPool;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // Awake is called before the first frame update and before other objects may try to use the pool.
+    void Awake()
     {
         SharedInstance = this;
         objectPool = new List<GameObject>();

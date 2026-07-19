@@ -4,49 +4,35 @@ public class Gun : MonoBehaviour
 {
     [SerializeField] Transform firePoint;
     [SerializeField] GunData gunData;
+    [SerializeField] Camera mainCamera;
+    Rigidbody2D rb;
+    Vector2 mousePosition;
+    //[SerializeField] GameObject bulletPrefab;
+    //[SerializeField] Camera mainCamera;
+
     private float nextFireTime = 0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetMouseButtonDown(0))
         {
-            // fire rate
-            if (Time.time >= nextFireTime)
-            {
-                Shoot();
-                nextFireTime = Time.time + 1f / gunData.fireRate;
-            }
+            Fire();
         }
+        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 aimDirection = mousePosition - rb.position;
+        float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg - 90f;
+        rb.rotation = aimAngle;
     }
 
-    void Shoot()
+    public void Fire()
     {
-        GameObject bullet = ObjectPooler.SharedInstance.GetPooledObject();
-        if (bullet != null)
-        {
-            bullet.transform.position = firePoint.position;
-            bullet.transform.rotation = firePoint.rotation;
-            bullet.SetActive(true);
-            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.linearVelocity = firePoint.up * gunData.bulletSpeed;
-            }
-            else
-            {
-                Debug.LogWarning("Rigidbody2D component not found on the bullet prefab.");
-            }
-            
-        }
-        else
-        {
-            Debug.LogWarning("No pooled object available!");
-        }
+        GameObject bullet = Instantiate(gunData.bulletPrefab, firePoint.position, firePoint.rotation);
+        bullet.GetComponent<Rigidbody2D>().AddForce(firePoint.up * gunData.fireForce, ForceMode2D.Impulse);
     }
 }

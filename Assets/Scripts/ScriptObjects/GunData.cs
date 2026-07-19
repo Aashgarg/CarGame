@@ -4,8 +4,8 @@ using UnityEngine;
 public class GunData : ScriptableObject
 {
     public Sprite gunSprite;
+    public GameObject bulletPrefab;
     public float fireRate;
-    public float bulletSpeed;
+    public float fireForce;
     public int damage;
-    public int maxAmmo;
 }
