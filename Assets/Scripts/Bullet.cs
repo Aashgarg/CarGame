@@ -3,7 +3,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float lifetime = 2f; // Lifetime of the bullet in seconds
-
+    [SerializeField] public GunData gunData;
     private Rigidbody2D rb;
     private Vector2 launchDirection;
     private float launchSpeed;
@@ -37,8 +37,9 @@ public class Bullet : MonoBehaviour
             {
                 enemy.TakeDamage(1); // Assuming the bullet deals 1 damage
             }*/
+            DeactivateBullet();
         }
-        DeactivateBullet();
+        
     }
 
     void DeactivateBullet()
