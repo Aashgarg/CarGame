@@ -23,17 +23,27 @@ public class EnemyOne : MonoBehaviour
     [SerializeField] private float detectionRange;
     [SerializeField] float separationRadius = 2f;
     [SerializeField] float separationStrength = 2f;
+    [SerializeField] private float attackingRange;
+    
 
-    [SerializeField] private float shootingRange;
+    [Header("Ramming")]
+    [SerializeField] private float ramSpeed = 15f;          // faster than chase speed
+    [SerializeField] private float ramDamage = 20f;         // damage dealt to player on impact
+    [SerializeField] private float ramCooldown = 2f;        // seconds between rams
+    private float lastRamTime = -999f;
+    private bool isRamming = false;
+    private bool isCommittedToRam = false;
+    private float ramStartTime;
+
+    [Header("Shooting")]
     [SerializeField] private float shootInterval;
-    [SerializeField] private float rammingRange;
-
     [SerializeField] private float fireRate;
     [SerializeField] private float fireForce;
     [SerializeField] private int damage;
 
     private NavMeshAgent agent;
     private bool isShooting = false;
+    private Rigidbody2D rb;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,13 +52,12 @@ public class EnemyOne : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
     void Update()
-    {
-        
-        
+    {   
         if (health <= 0)
         {
             currentState = EnemyState.Dead;
@@ -57,21 +66,28 @@ public class EnemyOne : MonoBehaviour
         {
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            if (distanceToPlayer <= rammingRange /*&& ramming cooldown is over*/)
+            if (!isCommittedToRam)
             {
-                currentState = EnemyState.Ramming;
-            }
-            else if (distanceToPlayer <= shootingRange /*&& shooting cooldown is over && is on screen*/)
-            {
-                currentState = EnemyState.Shooting;
-            }
-            else if (distanceToPlayer <= detectionRange)
-            {
-                currentState = EnemyState.Chasing;
-            }
-            else
-            {
-                currentState = EnemyState.Idle;
+                if (distanceToPlayer <= attackingRange)
+                {
+                    if (Time.time >= lastRamTime + ramCooldown)
+                    {
+                        currentState = EnemyState.Ramming;
+                        isCommittedToRam = true; // lock in the ram
+                    }
+                    else
+                    {
+                        currentState = EnemyState.Shooting;
+                    }
+                }
+                else if (distanceToPlayer <= detectionRange)
+                {
+                    currentState = EnemyState.Chasing;
+                }
+                else
+                {
+                    currentState = EnemyState.Idle;
+                }
             }
             Debug.Log($"distanceToPlayer: {distanceToPlayer}, currentState: {currentState}");
         }
@@ -103,6 +119,26 @@ public class EnemyOne : MonoBehaviour
             int bulletDamage = collision.gameObject.GetComponent<Bullet>().gunData.damage;
             TakeDamage(bulletDamage);
         }
+
+        // Deal damage to player on ram impact
+        if (collision.gameObject.CompareTag("Player") && isRamming)
+        {
+            collision.gameObject.GetComponent<CarController>().TakeDamage((int)ramDamage);
+            
+            // Knock the player back with an impulse
+            Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            if (playerRb != null)
+            {
+                Vector2 knockbackDirection = (collision.transform.position - transform.position).normalized;
+                playerRb.AddForce(knockbackDirection * 30f, ForceMode2D.Impulse);
+            }
+
+            // Stop the enemy dead after impact so it doesn't keep pushing
+            rb.linearVelocity = Vector2.zero;
+            lastRamTime = Time.time;
+            isRamming = false;
+            isCommittedToRam = false; // unlock state machine
+        }
     }
 
     void TakeDamage(int damageAmount)
@@ -133,8 +169,52 @@ public class EnemyOne : MonoBehaviour
     void Ram()
     {
         // Implement ramming logic here
-        // Move towards the player and apply damage on collision
-        // Show ramming animation
+        // Move and acceleratetowards the player and apply damage on collision
+        if (player == null) return;
+
+        // Cooldown — stop and wait before next ram
+        if (Time.time < lastRamTime + ramCooldown)
+        {
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, Vector2.zero, Time.deltaTime * 5f);
+            isRamming = false;
+            isCommittedToRam = false;
+            return;
+        }
+        
+
+        if (!isRamming)
+        {
+            isRamming = true;
+            ramStartTime = Time.time; // record when ram started
+        }
+        // Timeout — if ram takes more than 3 seconds, give up
+        if (Time.time > ramStartTime + 3f)
+        {
+            rb.linearVelocity = Vector2.zero;
+            isRamming = false;
+            isCommittedToRam = false;
+            lastRamTime = Time.time;
+            return;
+        }
+
+        Vector2 direction = (player.position - transform.position).normalized;
+        //Charge back a little before ramming to give the player a chance to react
+        if (Time.time < ramStartTime + 0.5f)
+        {
+            rb.AddForce(-direction * ramSpeed * 0.5f, ForceMode2D.Force);
+            //return;
+        }
+
+        // Build up speed with AddForce so it feels like an actual charge
+        rb.AddForce(direction * ramSpeed, ForceMode2D.Force);
+
+        // Cap the ram speed so it doesn't accelerate forever
+        if (rb.linearVelocity.magnitude > ramSpeed)
+            rb.linearVelocity = rb.linearVelocity.normalized * ramSpeed;
+
+        // Rotate to face player
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     Vector2 GetSeparationDirection()
@@ -172,7 +252,7 @@ public class EnemyOne : MonoBehaviour
         
         
         Debug.DrawRay(transform.position, direction * 1.5f, hitAhead.collider != null ? Color.red : Color.green);
-        Debug.Log($"ObstacleLayer value: {obstacleLayer.value} | Hit: {(hitAhead.collider != null ? hitAhead.collider.name : "nothing")}");
+        //Debug.Log($"ObstacleLayer value: {obstacleLayer.value} | Hit: {(hitAhead.collider != null ? hitAhead.collider.name : "nothing")}");
         if (hitAhead.collider != null)
         {
             // Try steering left or right around the obstacle
@@ -212,7 +292,7 @@ public class EnemyOne : MonoBehaviour
     void Idle()
     {
         // Implement idle behavior here
-        // Patrol, wander, or stay in place
+        // For this enemy it just stands still.
         // Show idle animation
     }
 }

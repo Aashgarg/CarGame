@@ -4,6 +4,8 @@ public class CarController : MonoBehaviour
 {
     [SerializeField] private CarData carData;
     [SerializeField] private Gun gun;
+    [SerializeField] private int playerHealth = 100;
+    [SerializeField] private int RamDamage; //Damage dealt to enemies when player rams into them
 
     float accelerationInput;
     float turningInput;
@@ -106,5 +108,16 @@ public class CarController : MonoBehaviour
             return true;
 
         return false;
+    }
+
+    public void TakeDamage(int damageAmount)
+    {
+        playerHealth -= damageAmount;
+        if (playerHealth <= 0)
+        {
+            // Handle player death here
+            Debug.Log("Player has died. Health: " + playerHealth);
+            // You can add additional logic for game over, respawn, etc.
+        }
     }
 }
