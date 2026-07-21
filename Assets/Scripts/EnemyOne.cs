@@ -4,7 +4,6 @@ public enum EnemyState
 {
     Idle,
     Chasing,
-    Shooting,
     Ramming,
     Dead
 }
@@ -40,8 +39,6 @@ public class EnemyOne : MonoBehaviour
     [SerializeField] private float fireRate;
     [SerializeField] private float fireForce;
     [SerializeField] private int damage;
-
-    private NavMeshAgent agent;
     private bool isShooting = false;
     private Rigidbody2D rb;
 
@@ -49,9 +46,6 @@ public class EnemyOne : MonoBehaviour
     void Start()
     {
         currentState = EnemyState.Idle;
-        agent = GetComponent<NavMeshAgent>();
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -77,7 +71,7 @@ public class EnemyOne : MonoBehaviour
                     }
                     else
                     {
-                        currentState = EnemyState.Shooting;
+                        currentState = EnemyState.Idle; // wait for cooldown
                     }
                 }
                 else if (distanceToPlayer <= detectionRange)
@@ -99,9 +93,6 @@ public class EnemyOne : MonoBehaviour
                 break;
             case EnemyState.Chasing:
                 ChasePlayer();
-                break;
-            case EnemyState.Shooting:
-                Shoot();
                 break;
             case EnemyState.Ramming:
                 Ram();
@@ -139,6 +130,15 @@ public class EnemyOne : MonoBehaviour
             isRamming = false;
             isCommittedToRam = false; // unlock state machine
         }
+        else if (collision.gameObject.CompareTag("Player") && !isRamming)
+        {
+            //player rammed into enemy deal damage to enemy and knockback enemy
+            damage = collision.gameObject.GetComponent<CarController>().RamDamage;
+            TakeDamage((int)damage);
+            // Knock the enemy back with an impulse
+            Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
+            rb.AddForce(knockbackDirection * 20f, ForceMode2D.Impulse);
+        }
     }
 
     void TakeDamage(int damageAmount)
@@ -159,13 +159,6 @@ public class EnemyOne : MonoBehaviour
         Destroy(gameObject);
     }
 
-    void Shoot()
-    {
-        // Implement shooting logic here
-        // Instantiate bullets, apply force, etc.
-        // Show shooting animation
-    }
-
     void Ram()
     {
         // Implement ramming logic here
@@ -180,7 +173,6 @@ public class EnemyOne : MonoBehaviour
             isCommittedToRam = false;
             return;
         }
-        
 
         if (!isRamming)
         {
@@ -199,9 +191,10 @@ public class EnemyOne : MonoBehaviour
 
         Vector2 direction = (player.position - transform.position).normalized;
         //Charge back a little before ramming to give the player a chance to react
+        //make this take more time so the player can react
         if (Time.time < ramStartTime + 0.5f)
         {
-            rb.AddForce(-direction * ramSpeed * 0.5f, ForceMode2D.Force);
+            rb.AddForce(-direction * ramSpeed * 1.1f, ForceMode2D.Force);
             //return;
         }
 
@@ -279,7 +272,8 @@ public class EnemyOne : MonoBehaviour
         // Blend chase direction with separation force
         Vector2 separation = GetSeparationDirection();
         Vector2 finalDirection = (direction + separation * separationStrength).normalized;
-
+        // add acceleration to the movement so it feels more like a car and less like a robot
+        //rb.AddForce(finalDirection * speed, ForceMode2D.Force);
         transform.position = Vector2.MoveTowards(
             transform.position,
             (Vector2)transform.position + finalDirection,

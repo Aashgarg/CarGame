@@ -5,7 +5,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private CarData carData;
     [SerializeField] private Gun gun;
     [SerializeField] private int playerHealth = 100;
-    [SerializeField] private int RamDamage; //Damage dealt to enemies when player rams into them
+    [SerializeField] public int RamDamage; //Damage dealt to enemies when player rams into them
 
     float accelerationInput;
     float turningInput;

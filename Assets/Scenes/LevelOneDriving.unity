@@ -6768,7 +6768,7 @@ Transform:
   m_GameObject: {fileID: 916721355}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 53.1, y: 31.7, z: 0}
+  m_LocalPosition: {x: 30.5, y: 31.7, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6795,16 +6795,16 @@ MonoBehaviour:
     m_Bits: 128
   enemyName: Rammer
   currentState: 1
-  health: 5
-  speed: 20
+  health: 100
+  speed: 30
   detectionRange: 70
   separationRadius: 2
   separationStrength: 2
   attackingRange: 10
-  shootInterval: 8
-  ramSpeed: 15
+  ramSpeed: 20
   ramDamage: 20
-  ramCooldown: 2
+  ramCooldown: 5
+  shootInterval: 8
   fireRate: 10
   fireForce: 10
   damage: 5
@@ -12032,6 +12032,7 @@ MonoBehaviour:
   carData: {fileID: 11400000, guid: 828a73f79349947a9b49f11d32626a67, type: 2}
   gun: {fileID: 0}
   playerHealth: 100
+  RamDamage: 0
 --- !u!61 &1192812065
 BoxCollider2D:
   m_ObjectHideFlags: 0
