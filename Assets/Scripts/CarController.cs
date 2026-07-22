@@ -15,6 +15,9 @@ public class CarController : MonoBehaviour
 
     Rigidbody2D carRigidbody;
 
+    private bool isDrifting = false;
+
+
     void Awake()
     {
         carRigidbody = GetComponent<Rigidbody2D>();
@@ -68,7 +71,11 @@ public class CarController : MonoBehaviour
     {
         Vector2 forwardVelocity = transform.up * Vector2.Dot(carRigidbody.linearVelocity, transform.up);
         Vector2 rightVelocity = transform.right * Vector2.Dot(carRigidbody.linearVelocity, transform.right);
-        carRigidbody.linearVelocity = forwardVelocity + rightVelocity * carData.driftFactor;
+        //carRigidbody.linearVelocity = forwardVelocity + rightVelocity * carData.driftFactor;
+
+        // Use high drift factor when space held, normal otherwise
+        float effectiveDriftFactor = isDrifting ? carData.activeDriftFactor : carData.driftFactor;
+        carRigidbody.linearVelocity = forwardVelocity + rightVelocity * effectiveDriftFactor;
     }
 
     public void setInputVector(Vector2 inputVector, float brake)
@@ -119,5 +126,10 @@ public class CarController : MonoBehaviour
             Debug.Log("Player has died. Health: " + playerHealth);
             // You can add additional logic for game over, respawn, etc.
         }
+    }
+
+    public void SetDrifting(bool drifting)
+    {
+        isDrifting = drifting;
     }
 }

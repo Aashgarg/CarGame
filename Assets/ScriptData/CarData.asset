@@ -18,3 +18,4 @@ MonoBehaviour:
   driftFactor: 0.8
   dragFactor: 0.7
   brakeFactor: 20
+  activeDriftFactor: 0.97

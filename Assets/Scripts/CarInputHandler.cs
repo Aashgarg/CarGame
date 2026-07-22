@@ -15,7 +15,10 @@ public class CarInputHandler : MonoBehaviour
         Vector2 inputVector = Vector2.zero;
         inputVector.x = Input.GetAxis("Horizontal");
         inputVector.y = Input.GetAxis("Vertical");
-        float brake = Input.GetKey(KeyCode.Space) ? 1f : 0f;
+        float brake = Input.GetKey(KeyCode.LeftShift) ? 1f : 0f;
         carController.setInputVector(inputVector, brake);
+
+        // Trigger drift while Space is held (Space only). Brake remains LeftShift only.
+        carController.SetDrifting(Input.GetKey(KeyCode.Space));
     }
 }

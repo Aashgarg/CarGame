@@ -9,16 +9,19 @@ public enum EnemyState
 }
 public class EnemyOne : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Transform player;
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
     [SerializeField] LayerMask obstacleLayer;
 
+    [Header("Enemy Stats")]
     [SerializeField] private string enemyName;
     [SerializeField] private EnemyState currentState;
+    [SerializeField] private float speed;
     [SerializeField] private float health;
 
-    [SerializeField] private float speed;
+    [Header("Detection")]
     [SerializeField] private float detectionRange;
     [SerializeField] float separationRadius = 2f;
     [SerializeField] float separationStrength = 2f;
@@ -71,7 +74,7 @@ public class EnemyOne : MonoBehaviour
                     }
                     else
                     {
-                        currentState = EnemyState.Idle; // wait for cooldown
+                        currentState = EnemyState.Chasing; // wait for cooldown
                     }
                 }
                 else if (distanceToPlayer <= detectionRange)
@@ -115,7 +118,10 @@ public class EnemyOne : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") && isRamming)
         {
             collision.gameObject.GetComponent<CarController>().TakeDamage((int)ramDamage);
-            
+            //play a sound effect for the ram impact
+            //AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
+
+
             // Knock the player back with an impulse
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
             if (playerRb != null)
@@ -134,10 +140,15 @@ public class EnemyOne : MonoBehaviour
         {
             //player rammed into enemy deal damage to enemy and knockback enemy
             damage = collision.gameObject.GetComponent<CarController>().RamDamage;
-            TakeDamage((int)damage);
+            //play a sound effect for the ram impact
+            //AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
+            
             // Knock the enemy back with an impulse
             Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
             rb.AddForce(knockbackDirection * 20f, ForceMode2D.Impulse);
+            TakeDamage((int)damage);
+
+            
         }
     }
 
@@ -272,12 +283,21 @@ public class EnemyOne : MonoBehaviour
         // Blend chase direction with separation force
         Vector2 separation = GetSeparationDirection();
         Vector2 finalDirection = (direction + separation * separationStrength).normalized;
-        // add acceleration to the movement so it feels more like a car and less like a robot
-        //rb.AddForce(finalDirection * speed, ForceMode2D.Force);
-        transform.position = Vector2.MoveTowards(
+       
+        // make it so that the enemy is a few distance away from the player when chasing so that it doesn't collide with the player
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        if (distanceToPlayer < 8f)
+        {
+            //stop moving towards the player and just face the player
+            finalDirection = ((Vector2)player.position - (Vector2)transform.position).normalized;
+        }
+        else
+        {
+            transform.position = Vector2.MoveTowards(
             transform.position,
-            (Vector2)transform.position + finalDirection,
+            (Vector2)transform.position + finalDirection, 
             speed * Time.deltaTime);
+        }
 
         float angle = Mathf.Atan2(finalDirection.y, finalDirection.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);

@@ -9,4 +9,5 @@ public class CarData : ScriptableObject
     public float driftFactor;
     public float dragFactor;
     public float brakeFactor;
+    public float activeDriftFactor; // high = very slidey when drifting
 }
