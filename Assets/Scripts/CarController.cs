@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class CarController : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class CarController : MonoBehaviour
     [SerializeField] private float playerHealth = 100;
     [SerializeField] public int RamDamage; //Damage dealt to enemies when player rams into them
 
+    [SerializeField] private UnityEvent<float, float> onHealthChanged = new UnityEvent<float, float>();
+    float currentHealth;
     float accelerationInput;
     float turningInput;
     float brakeInput;
@@ -23,6 +26,11 @@ public class CarController : MonoBehaviour
     void Awake()
     {
         carRigidbody = GetComponent<Rigidbody2D>();
+    }
+    void Start()
+    {
+        currentHealth = playerHealth;
+        onHealthChanged?.Invoke(currentHealth, playerHealth);
     }
 
     void FixedUpdate()
@@ -121,24 +129,33 @@ public class CarController : MonoBehaviour
 
     public void TakeDamage(float damageAmount)
     {
-        playerHealth -= damageAmount;
-        if (playerHealth <= 0)
+        //playerHealth -= damageAmount;
+        currentHealth = Mathf.Clamp(currentHealth - damageAmount, 0f, playerHealth);
+        onHealthChanged?.Invoke(currentHealth, playerHealth);
+
+        if (currentHealth <= 0)
         {
             // Handle player death here
-            Debug.Log("Player has died. Health: " + playerHealth);
+            Debug.Log("Player has died. Health: " + currentHealth);
             // You can add additional logic for game over, respawn, etc.
             //teleprt to current checkpoint
             if (CurrentCheckpoint != null)
             {
-                //Show black screen for 2 seconds while it teleports to the checkpoint
-                //StartCoroutine(TeleportToCheckpoint());
-                transform.position = CurrentCheckpoint.position;
-                transform.rotation = CurrentCheckpoint.rotation;
-                playerHealth = 100; // Reset health to full
-                carRigidbody.linearVelocity = Vector2.zero; // Reset velocity
-                carRigidbody.angularVelocity = 0f; // Reset angular velocity
+                Die();
             }
         }
+    }
+
+    void Die()
+    {
+        //Show black screen for 2 seconds while it teleports to the checkpoint
+        //StartCoroutine(TeleportToCheckpoint());
+        transform.position = CurrentCheckpoint.position;
+        transform.rotation = CurrentCheckpoint.rotation;
+        currentHealth = playerHealth; // Reset health to full
+        onHealthChanged?.Invoke(currentHealth, playerHealth);
+        carRigidbody.linearVelocity = Vector2.zero; // Reset velocity
+        carRigidbody.angularVelocity = 0f; // Reset angular velocity
     }
 
     public void SetDrifting(bool drifting)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 public enum EnemyState
 {
     Idle,
@@ -14,6 +15,7 @@ public class EnemyOne : MonoBehaviour
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
     [SerializeField] LayerMask obstacleLayer;
+    [SerializeField] private UnityEvent<float, float> onHealthChanged = new UnityEvent<float, float>();
 
     [Header("Enemy Stats")]
     [SerializeField] private string enemyName;
@@ -49,12 +51,15 @@ public class EnemyOne : MonoBehaviour
     [SerializeField] private AudioClip shootDamageSound;
     private bool isShooting = false;
     private Rigidbody2D rb;
+    float currentHealth;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentState = EnemyState.Idle;
         rb = GetComponent<Rigidbody2D>();
+        currentHealth = health;
+        onHealthChanged?.Invoke(currentHealth, health);
     }
 
     // Update is called once per frame
@@ -125,6 +130,7 @@ public class EnemyOne : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") && isRamming)
         {
             collision.gameObject.GetComponent<CarController>().TakeDamage((int)ramDamage);
+            TakeDamage((int)ramDamage);
             //play a sound effect for the ram impact
             //AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
 
@@ -154,6 +160,7 @@ public class EnemyOne : MonoBehaviour
             Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
             rb.AddForce(knockbackDirection * 20f, ForceMode2D.Impulse);
             TakeDamage((int)damage);
+            
 
             
         }
@@ -161,9 +168,10 @@ public class EnemyOne : MonoBehaviour
 
     void TakeDamage(int damageAmount)
     {
-        health -= damageAmount;
-        //Show damage taken as a number above the enemy
-        if (health <= 0)
+        currentHealth = Mathf.Clamp(currentHealth - damageAmount, 0f, health);
+        onHealthChanged?.Invoke(currentHealth, health);
+
+        if (currentHealth <= 0f)
         {
             Die();
         }
