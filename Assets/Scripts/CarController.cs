@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CarController : MonoBehaviour
 {
     [SerializeField] private CarData carData;
     [SerializeField] private Gun gun;
-    [SerializeField] private int playerHealth = 100;
+    [SerializeField] private float playerHealth = 100;
     [SerializeField] public int RamDamage; //Damage dealt to enemies when player rams into them
 
     float accelerationInput;
@@ -16,6 +17,7 @@ public class CarController : MonoBehaviour
     Rigidbody2D carRigidbody;
 
     private bool isDrifting = false;
+    public Transform CurrentCheckpoint; // Reference to the current checkpoints
 
 
     void Awake()
@@ -117,7 +119,7 @@ public class CarController : MonoBehaviour
         return false;
     }
 
-    public void TakeDamage(int damageAmount)
+    public void TakeDamage(float damageAmount)
     {
         playerHealth -= damageAmount;
         if (playerHealth <= 0)
@@ -125,6 +127,17 @@ public class CarController : MonoBehaviour
             // Handle player death here
             Debug.Log("Player has died. Health: " + playerHealth);
             // You can add additional logic for game over, respawn, etc.
+            //teleprt to current checkpoint
+            if (CurrentCheckpoint != null)
+            {
+                //Show black screen for 2 seconds while it teleports to the checkpoint
+                //StartCoroutine(TeleportToCheckpoint());
+                transform.position = CurrentCheckpoint.position;
+                transform.rotation = CurrentCheckpoint.rotation;
+                playerHealth = 100; // Reset health to full
+                carRigidbody.linearVelocity = Vector2.zero; // Reset velocity
+                carRigidbody.angularVelocity = 0f; // Reset angular velocity
+            }
         }
     }
 

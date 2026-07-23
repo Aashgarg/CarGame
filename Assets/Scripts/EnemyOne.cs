@@ -42,6 +42,11 @@ public class EnemyOne : MonoBehaviour
     [SerializeField] private float fireRate;
     [SerializeField] private float fireForce;
     [SerializeField] private int damage;
+
+    [Header("Sounds")]
+    [SerializeField] private AudioClip ramImpactSound;
+    [SerializeField] private AudioClip dodgeWarningSound;
+    [SerializeField] private AudioClip shootDamageSound;
     private bool isShooting = false;
     private Rigidbody2D rb;
 
@@ -106,11 +111,13 @@ public class EnemyOne : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Bullet"))
         {
             int bulletDamage = collision.gameObject.GetComponent<Bullet>().gunData.damage;
+            //play a sound effect for the bullet impact
+            //AudioSource.PlayClipAtPoint(shootDamageSound, transform.position);
             TakeDamage(bulletDamage);
         }
 
@@ -155,6 +162,7 @@ public class EnemyOne : MonoBehaviour
     void TakeDamage(int damageAmount)
     {
         health -= damageAmount;
+        //Show damage taken as a number above the enemy
         if (health <= 0)
         {
             Die();
@@ -205,8 +213,10 @@ public class EnemyOne : MonoBehaviour
         //make this take more time so the player can react
         if (Time.time < ramStartTime + 0.5f)
         {
+            //play a sound effect for the dodge warning
             rb.AddForce(-direction * ramSpeed * 1.1f, ForceMode2D.Force);
-            //return;
+            //AudioSource.PlayClipAtPoint(dodgeWarningSound, transform.position);
+            //Add a visual indicator for the dodge warning 
         }
 
         // Build up speed with AddForce so it feels like an actual charge

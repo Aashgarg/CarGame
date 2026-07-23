@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d9e3747af7634307a1ead332b396d62, type: 3}
   m_Name: CarData
   m_EditorClassIdentifier: Assembly-CSharp::CarData
-  maxSpeed: 60
-  accelerationFactor: 30
-  turningFactor: 4
-  driftFactor: 0.8
+  maxSpeed: 50
+  accelerationFactor: 20
+  turningFactor: 2
+  driftFactor: 0.7
   dragFactor: 0.7
   brakeFactor: 20
-  activeDriftFactor: 0.97
+  activeDriftFactor: 0.94
