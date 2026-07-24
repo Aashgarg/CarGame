@@ -148,18 +148,28 @@ public class CarController : MonoBehaviour
 
     void Die()
     {
-        //Show black screen for 2 seconds while it teleports to the checkpoint
-        //StartCoroutine(TeleportToCheckpoint());
+        //Show a panel with black screen for 2 seconds while it teleports to the checkpoint
+        //lock player movement
+        freezeInPlace();
         transform.position = CurrentCheckpoint.position;
         transform.rotation = CurrentCheckpoint.rotation;
         currentHealth = playerHealth; // Reset health to full
         onHealthChanged?.Invoke(currentHealth, playerHealth);
         carRigidbody.linearVelocity = Vector2.zero; // Reset velocity
         carRigidbody.angularVelocity = 0f; // Reset angular velocity
+        unfreeze();
+        //remove black screen
+        //playermovement unlocks
     }
 
     public void SetDrifting(bool drifting)
     {
         isDrifting = drifting;
+    }
+
+    public void Heal(float health){
+        currentHealth = Mathf.Clamp(currentHealth + health, 0f, playerHealth);
+        
+        onHealthChanged?.Invoke(currentHealth, playerHealth);
     }
 }
