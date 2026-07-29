@@ -18,6 +18,7 @@ public class CarController : MonoBehaviour
     float velocityVsUp;
 
     Rigidbody2D carRigidbody;
+    CarSFXHandler carSFXHandler;
 
     private bool isDrifting = false;
     public Transform CurrentCheckpoint; // Reference to the current checkpoints
@@ -26,6 +27,7 @@ public class CarController : MonoBehaviour
     void Awake()
     {
         carRigidbody = GetComponent<Rigidbody2D>();
+        carSFXHandler = GetComponentInChildren<CarSFXHandler>(true);
     }
     void Start()
     {
@@ -171,5 +173,27 @@ public class CarController : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth + health, 0f, playerHealth);
         
         onHealthChanged?.Invoke(currentHealth, playerHealth);
+    }
+
+    public float GetVelocityMagnitude()
+    {
+        return carRigidbody.linearVelocity.magnitude;
+    }
+
+    void OnCollisionEnter2D(Collision2D collision2D)
+    {
+        //Get the relative velocity of the collision
+        float relativeVelocity = collision2D.relativeVelocity.magnitude;
+        float volume = relativeVelocity * 0.1f;
+
+        if (carSFXHandler != null)
+        {
+            //Debug.Log("no carhandler");
+            carSFXHandler.playHitSound(relativeVelocity, volume);
+        }
+        else
+        {
+            Debug.LogWarning("Car hit sound handler not found on this car.");
+        }
     }
 }

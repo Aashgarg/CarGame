@@ -96,7 +96,7 @@ public class EnemyOne : MonoBehaviour
                     currentState = EnemyState.Idle;
                 }
             }
-            Debug.Log($"distanceToPlayer: {distanceToPlayer}, currentState: {currentState}");
+            //Debug.Log($"distanceToPlayer: {distanceToPlayer}, currentState: {currentState}");
         }
         
         switch (currentState)
@@ -132,7 +132,7 @@ public class EnemyOne : MonoBehaviour
             collision.gameObject.GetComponent<CarController>().TakeDamage((int)ramDamage);
             TakeDamage((int)ramDamage);
             //play a sound effect for the ram impact
-            //AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
+            AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
 
 
             // Knock the player back with an impulse
@@ -154,7 +154,7 @@ public class EnemyOne : MonoBehaviour
             //player rammed into enemy deal damage to enemy and knockback enemy
             damage = collision.gameObject.GetComponent<CarController>().RamDamage;
             //play a sound effect for the ram impact
-            //AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
+            AudioSource.PlayClipAtPoint(ramImpactSound, transform.position);
             
             // Knock the enemy back with an impulse
             Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
