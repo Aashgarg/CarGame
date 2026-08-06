@@ -118,13 +118,14 @@ public class EnemyOne : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        /*
         if (collision.gameObject.CompareTag("Bullet"))
         {
             int bulletDamage = collision.gameObject.GetComponent<Bullet>().gunData.damage;
             //play a sound effect for the bullet impact
             //AudioSource.PlayClipAtPoint(shootDamageSound, transform.position);
             TakeDamage(bulletDamage);
-        }
+        }*/
 
         // Deal damage to player on ram impact
         if (collision.gameObject.CompareTag("Player") && isRamming)
@@ -166,7 +167,7 @@ public class EnemyOne : MonoBehaviour
         }
     }
 
-    void TakeDamage(int damageAmount)
+    public void TakeDamage(int damageAmount)
     {
         currentHealth = Mathf.Clamp(currentHealth - damageAmount, 0f, health);
         onHealthChanged?.Invoke(currentHealth, health);

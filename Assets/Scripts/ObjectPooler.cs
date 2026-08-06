@@ -4,43 +4,42 @@ using System.Collections.Generic;
 public class ObjectPooler : MonoBehaviour
 {
     public static ObjectPooler SharedInstance;
-    [SerializeField] private GameObject gameObjectToPool;
-    [SerializeField] private int poolSize = 10;
 
-    private List<GameObject> objectPool;
-    // Awake is called before the first frame update and before other objects may try to use the pool.
+    [SerializeField] GameObject bulletPrefab;
+    [SerializeField] int poolSize = 20;
+
+    List<GameObject> pooledObjects;
+
     void Awake()
     {
         SharedInstance = this;
-        objectPool = new List<GameObject>();
-        for (int i = 0; i < poolSize; i++)
-        {
-            GameObject obj = Instantiate(gameObjectToPool);
-            obj.SetActive(false);
-            obj.transform.parent = this.transform;
-            objectPool.Add(obj);
-        }
     }
 
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        
+        pooledObjects = new List<GameObject>();
+
+        for (int i = 0; i < poolSize; i++)
+        {
+            GameObject obj = Instantiate(bulletPrefab);
+            obj.SetActive(false);
+            pooledObjects.Add(obj);
+        }
     }
 
     public GameObject GetPooledObject()
     {
-        for (int i = 0; i < objectPool.Count; i++)
+        // Find an inactive bullet to reuse
+        for (int i = 0; i < pooledObjects.Count; i++)
         {
-            if (!objectPool[i].activeInHierarchy)
-            {
-                return objectPool[i];
-            }
+            if (!pooledObjects[i].activeInHierarchy)
+                return pooledObjects[i];
         }
-        GameObject obj = Instantiate(gameObjectToPool);
+
+        // Pool exhausted — expand it
+        GameObject obj = Instantiate(bulletPrefab);
         obj.SetActive(false);
-        obj.transform.parent = this.transform;
-        objectPool.Add(obj);
+        pooledObjects.Add(obj);
         return obj;
     }
     
