@@ -10,23 +10,41 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        bool shootPressed = Input.GetButtonDown("Fire1") || Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space);
+
+        if (shootPressed && Time.time >= nextFireTime)
         {
-            if (Time.time >= nextFireTime)
-            {
-                Shoot();
-                nextFireTime = Time.time + 1f / gunData.fireRate;
-            }
+            Shoot();
+            nextFireTime = Time.time + 1f / (gunData != null ? gunData.fireRate : 1f);
         }
     }
 
     void Shoot()
     {
-        if (firePoint == null || gunData == null) return;
-        if (ObjectPooler.SharedInstance == null) return;
+        if (firePoint == null)
+        {
+            Debug.LogWarning("Gun firePoint is not assigned.");
+            return;
+        }
+
+        if (gunData == null)
+        {
+            Debug.LogWarning("GunData is not assigned on the Gun component.");
+            return;
+        }
+
+        if (ObjectPooler.SharedInstance == null)
+        {
+            Debug.LogWarning("ObjectPooler was not found in the scene.");
+            return;
+        }
 
         GameObject bullet = ObjectPooler.SharedInstance.GetPooledObject();
-        if (bullet == null) return;
+        if (bullet == null)
+        {
+            Debug.LogWarning("No bullet is available from the object pool.");
+            return;
+        }
 
         // Spawn at firePoint, facing same direction as car
         bullet.transform.position = firePoint.position;
@@ -42,5 +60,9 @@ public class Gun : MonoBehaviour
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
             rb.linearVelocity = firePoint.up * gunData.bulletSpeed;
+        else
+            Debug.LogWarning("The bullet prefab is missing a Rigidbody2D component.");
+
+        Debug.Log("Firing bullet.");
     }
 }
